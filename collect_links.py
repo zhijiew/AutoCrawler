@@ -177,6 +177,8 @@ class CollectLinks:
 
         imgs = self.browser.find_elements(By.XPATH,
                                           '//div[@class="photo_bx api_ani_send _photoBox"]//img[@class="_image _listImage"]')
+#         //*[@id="main_pack"]/section[2]/div/div[1]/div[1]/div[1]
+#         //*[@id="main_pack"]/section[2]/div/div[1]/div[1]/div[1]/div/div[1]/a
 
         print('Scraping links')
 
@@ -325,8 +327,49 @@ class CollectLinks:
 
         return links
 
+    def pxhere(self, keyword, add_url=""):
+        self.browser.get("https://pxhere.com")
+
+        time.sleep(1)
+
+        print('Scrolling down')
+
+        elem = self.browser.find_element_by_tag_name("body")
+
+        for i in range(30000):
+            elem.send_keys(Keys.PAGE_DOWN)
+            time.sleep(0.2)
+
+        pxhere_xpath = '//div[@class="item-container"]//img'
+
+        imgs = self.browser.find_elements(By.XPATH, pxhere_xpath)
+
+#         '/html/body/section[2]/div[2]/div/div/div[1]/div/a/img'
+#         '/html/body/section[2]/div[2]/div/div/div[6]/div/a/img'
+#         '/html/body/section[2]/div[2]/div/div/div[11]/div/a/img'
+#         '/html/body/section[2]/div[2]/div/div/div[140]/div/a/img'
+
+        print('Scraping links')
+
+        links = []
+
+        for img in imgs:
+            try:
+                src = img.get_attribute("src")
+                if src[0] != 'd':
+                    links.append(src)
+            except Exception as e:
+                print('[Exception occurred while collecting links from naver] {}'.format(e))
+
+        links = self.remove_duplicates(links)
+
+        print('Collect links done. Site: {}, Keyword: {}, Total: {}'.format('naver', keyword, len(links)))
+        self.browser.close()
+
+        return links
+
 
 if __name__ == '__main__':
     collect = CollectLinks()
-    links = collect.naver_full('박보영')
+    links = collect.pxhere('all')
     print(len(links), links)
